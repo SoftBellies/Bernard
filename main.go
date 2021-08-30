@@ -59,7 +59,7 @@ func main() {
 			return "", fmt.Errorf("making HTTP request using client: %w", err)
 		}
 		respBody, _ := ioutil.ReadAll(resp.Body)
-		log.Println("reply: %q", resp.Body)
+		log.Printf("reply: %q", resp.Body)
 		return string(respBody), nil
 	}
 
@@ -74,14 +74,14 @@ func main() {
 			return "", fmt.Errorf("making HTTP request using client: %w", err)
 		}
 		respBody, _ := ioutil.ReadAll(resp.Body)
-		log.Println("reply: %q", resp.Body)
+		log.Printf("reply: %q", resp.Body)
 		return string(respBody), nil
 	}
 
 	{
 		status, err := apiStatus()
 		u.CheckErr(err)
-		fmt.Printf("Status: %q\n", status)
+		log.Printf("status on init: %q", status)
 	}
 
 	// commands
@@ -92,6 +92,7 @@ func main() {
 		}
 		commandHandlers := map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 			"sesame": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+				log.Println("/sesame called")
 				status, err := apiOpen()
 
 				if err != nil {
@@ -112,6 +113,7 @@ func main() {
 				}
 			},
 			"status": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+				log.Println("/status called")
 				status, err := apiStatus()
 
 				if err != nil {
