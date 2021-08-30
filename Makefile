@@ -1,5 +1,7 @@
+SHELL=bash
+
 run: install
-	discordbot
+	. .env; discordbot
 
 install:
 	goimports -w .
