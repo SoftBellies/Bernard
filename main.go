@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/tls"
-	"crypto/x509"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -29,20 +28,22 @@ func main() {
 	// create tls client
 	var client *http.Client
 	{
-		cert, err := tls.LoadX509KeyPair("usercert.pem", "userkey.pem")
-		u.CheckErr(err)
-		caCertPool := x509.NewCertPool()
-		caCert, err := ioutil.ReadFile("cacert.pem")
-		u.CheckErr(err)
-		caCertPool.AppendCertsFromPEM(caCert)
+		//cert, err := tls.LoadX509KeyPair("usercert.pem", "userkey.pem")
+		//u.CheckErr(err)
+		//caCertPool := x509.NewCertPool()
+		//caCert, err := ioutil.ReadFile("cacert.pem")
+		//u.CheckErr(err)
+		//caCertPool.AppendCertsFromPEM(caCert)
 		tr := &http.Transport{
 			TLSClientConfig: &tls.Config{
-				Certificates: []tls.Certificate{cert},
-				RootCAs:      caCertPool,
+				//Certificates: []tls.Certificate{cert},
+				//RootCAs:      caCertPool,
 			},
 		}
 		client = &http.Client{Transport: tr}
 	}
+
+	var authz = "Basic " + u.B64Encode([]byte(os.Getenv("API_AUTHORIZATION")))
 
 	apiOpen := func() (string, error) {
 		form := url.Values{}
@@ -53,6 +54,7 @@ func main() {
 			return "", fmt.Errorf("creating new HTTP request: %w", err)
 		}
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.Header.Add("Authorization", authz)
 
 		resp, err := client.Do(req)
 		if err != nil {
@@ -68,10 +70,11 @@ func main() {
 		if err != nil {
 			return "", fmt.Errorf("creating new HTTP request: %w", err)
 		}
+		req.Header.Add("Authorization", authz)
 
 		resp, err := client.Do(req)
 		if err != nil {
-			return "", fmt.Errorf("making HTTP request using client: %w", err)
+			return "", fmt.Errorf("makging HTTP request using client: %w", err)
 		}
 		respBody, _ := ioutil.ReadAll(resp.Body)
 		log.Printf("reply: %q", resp.Body)
